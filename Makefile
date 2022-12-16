@@ -20,6 +20,9 @@ asm-y:=$(shell find $(src_dir) -name *.s)
 inc-y:=$(inc_dir)
 elf-y:=$(out_dir)prj.elf
 obj-y:=$(src-y:%.c=$(out_dir)%.o) $(asm-y:%.s=$(out_dir)%.o)
+dep-y:=$(obj-y:%.o=%.d)
+
+-include $(dep-y)
 
 lds-y:=default.lds
 LD_FLAGS += -T $(lds-y) -Map=$(out_dir)prj.map
@@ -36,11 +39,11 @@ $(mkdir):
 
 $(out_dir)%.o:%.s | $(mkdir)
 	$Qecho build $< ...
-	$Q$(CC) -c $(CC_FLAGS) $< -o $@
+	$Q$(CC)  -MMD -c $(CC_FLAGS) $< -o $@
 
 $(out_dir)%.o:%.c | $(mkdir)
 	$Q echo  build $< ...
-	$Q $(CC) -c $(CC_FLAGS) $< -o $@
+	$Q $(CC) -MMD -c $(CC_FLAGS) $< -o $@
 
 $(elf-y): $(obj-y)
 	$Q echo linking ...
